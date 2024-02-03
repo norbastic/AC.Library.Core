@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
@@ -13,55 +14,101 @@ namespace AC.Library.Core.Templates
 {
     public abstract class DeviceCommunicationTemplate
     {
-        protected AirConditionerModel _airConditionerModel;
-        protected IUdpClientWrapper _udpClientWrapper;
+        protected readonly IUdpClientWrapper _udpClientWrapper;
+        protected readonly Operation _operation;
+        protected readonly AirConditionerModel _airConditionerModel;
+        protected readonly string _broadcastAddress;
 
-        protected DeviceCommunicationTemplate(AirConditionerModel airConditionerModel, IUdpClientWrapper udpClientWrapper)
+        protected DeviceCommunicationTemplate(
+            IUdpClientWrapper udpClientWrapper,
+            Operation operation,
+            AirConditionerModel airConditionerModel = null,
+            string broadcastAddress = null)
         {
+            _udpClientWrapper = udpClientWrapper ?? throw new ArgumentNullException(nameof(udpClientWrapper));
+            _operation = operation;
             _airConditionerModel = airConditionerModel;
-            _udpClientWrapper = udpClientWrapper;
+            _broadcastAddress = broadcastAddress;
         }
 
         public async Task<object> ExecuteOperationAsync()
         {
-            ValidateDevice();
+            ValidateOperation();
             var request = CreateRequest();
             var encryptedData = EncryptData(request);
-            var udpResponse = await SendUdpRequest(encryptedData);
-            var json = DecryptResponse(udpResponse);
+            var udpResponses = await SendUdpRequest(encryptedData);
+            var json = DecryptResponse(udpResponses);
             return ProcessResponseJson(json);
         }
 
-        private void ValidateDevice()
+        private void ValidateOperation()
         {
-            if (_airConditionerModel.PrivateKey == null)
-                throw new Exception("Device [PrivateKey] is required!");
+            if ((_operation == Operation.GetStatus || _operation == Operation.SetParameter) && _airConditionerModel?.PrivateKey == null)
+                throw new InvalidOperationException("Device [PrivateKey] is required for GetStatus or SetParameter operations.");
         }
 
         private string EncryptData(object request)
         {
             var packJson = JsonConvert.SerializeObject(request);
-            return Crypto.EncryptData(packJson, _airConditionerModel.PrivateKey) ?? throw new Exception("Could not encrypt pack json.");
+            return _operation == Operation.Scan || _operation == Operation.Bind
+                ? Crypto.EncryptGenericData(packJson) ?? throw new InvalidOperationException("Could not encrypt generic data.")
+                : Crypto.EncryptData(packJson, _airConditionerModel.PrivateKey) ?? throw new InvalidOperationException("Could not encrypt pack json.");
         }
 
-        private async Task<UdpReceiveResult> SendUdpRequest(string encryptedData)
+        private async Task<List<UdpReceiveResult>> SendUdpRequest(string encryptedData)
         {
-            var request = Request.Create(_airConditionerModel.Id, encryptedData);
+            Request request;
+            switch (_operation)
+            {
+                case Operation.Scan:
+                    request = Request.CreateScan();
+                    break;
+                case Operation.Bind:
+                    request = Request.Create(_airConditionerModel.Id, encryptedData, 1);
+                    break;
+                default:
+                    request = Request.Create(_airConditionerModel.Id, encryptedData);
+                    break;
+            }
             var bytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(request));
             var udpHandler = new UdpHandler(_udpClientWrapper);
-            return (await udpHandler.SendReceiveRequest(bytes, _airConditionerModel.Address)).FirstOrDefault();
+
+            return _operation == Operation.Scan
+                ? await udpHandler.SendReceiveBroadcastRequest(bytes, _broadcastAddress)
+                : await udpHandler.SendReceiveRequest(bytes, _airConditionerModel.Address);
         }
 
-        private string DecryptResponse(UdpReceiveResult udpResponse)
+        private string DecryptResponse(List<UdpReceiveResult> udpResponses)
         {
+            if (_operation == Operation.Scan)
+                return DecryptScanResponses(udpResponses);
+
+            var udpResponse = udpResponses.FirstOrDefault();
+            if (udpResponse == null) return null;
+
             var responseJson = Encoding.ASCII.GetString(udpResponse.Buffer);
             var response = JsonConvert.DeserializeObject<ResponsePackInfo>(responseJson);
-            if (response == null)
+            return _operation == Operation.Bind ?
+                Crypto.DecryptGenericData(response.Pack) :
+                Crypto.DecryptData(response.Pack, _airConditionerModel.PrivateKey);
+        }
+
+        private string DecryptScanResponses(List<UdpReceiveResult> udpResponses)
+        {
+            var decryptedResponses = udpResponses.Select(udpResponse =>
             {
-                return null;
-            }
-            var decryptedJson = Crypto.DecryptData(response.Pack, _airConditionerModel.PrivateKey);
-            return decryptedJson;
+                var responsePackJson = Encoding.ASCII.GetString(udpResponse.Buffer);
+                var responsePack = JsonConvert.DeserializeObject<ResponsePackInfo>(responsePackJson);
+                var decryptedData = Crypto.DecryptGenericData(responsePack.Pack);
+                
+                return new DeviceDiscoveryResponse
+                {
+                    Address = udpResponse.RemoteEndPoint.Address.ToString(),
+                    Json = decryptedData
+                };
+            }).ToList();
+            
+            return JsonConvert.SerializeObject(decryptedResponses);
         }
 
         protected abstract object CreateRequest();

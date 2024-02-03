@@ -28,6 +28,14 @@ namespace AC.Library.Core.Models.Communication
                 UID = 0
             };
         }
+
+        public static Request CreateScan()
+        {
+            return new Request
+            {
+                Type = "scan"
+            };
+        }
     }
 }
 
