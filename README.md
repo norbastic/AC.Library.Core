@@ -1,6 +1,9 @@
 # AC.Library.Core
 Simple library to manage Gree Air Conditioner devices.
+
 Only tested with Gree G-Tech.(https://global.gree.com/contents/169/290.html)
+
+All credits go to tomikaa87 who made an amazing work. Check out his work: [gree-remote](https://github.com/tomikaa87/gree-remote).
 
 ## How to use
 ### Scanning local network
