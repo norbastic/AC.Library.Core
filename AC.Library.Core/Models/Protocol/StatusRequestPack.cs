@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace AC.Library.Core.Models.Communication
+namespace AC.Library.Core.Models.Protocol
 {
     public class StatusRequestPack
     {

@@ -2,7 +2,7 @@
 using System.Linq;
 using Newtonsoft.Json;
 
-namespace AC.Library.Core.Models.Communication
+namespace AC.Library.Core.Models.Protocol
 {
     internal class CommandRequestPack : RequestPackInfo
     {
