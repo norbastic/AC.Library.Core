@@ -15,44 +15,59 @@ namespace AC.Library.Core.Templates
     public abstract class DeviceCommunicationTemplate
     {
         protected readonly IUdpClientWrapper _udpClientWrapper;
-        protected readonly Operation _operation;
         protected readonly AirConditionerModel _airConditionerModel;
         protected readonly string _broadcastAddress;
 
         protected DeviceCommunicationTemplate(
             IUdpClientWrapper udpClientWrapper,
-            Operation operation,
             AirConditionerModel airConditionerModel = null,
             string broadcastAddress = null)
         {
             _udpClientWrapper = udpClientWrapper ?? throw new ArgumentNullException(nameof(udpClientWrapper));
-            _operation = operation;
             _airConditionerModel = airConditionerModel;
             _broadcastAddress = broadcastAddress;
         }
 
         public async Task<object> ExecuteOperationAsync()
         {
-            ValidateOperation();
+            // ValidatePrivateKey();
             var request = CreateRequest();
-            var encryptedData = EncryptData(request);
+            //var encryptedData = EncryptUsingPrivateKey(request);
             var udpResponses = await SendUdpRequest(encryptedData);
             var json = DecryptResponse(udpResponses);
             return ProcessResponseJson(json);
         }
 
-        private void ValidateOperation()
+        public async Task PerformScan()
         {
-            if ((_operation == Operation.GetStatus || _operation == Operation.SetParameter) && _airConditionerModel?.PrivateKey == null)
-                throw new InvalidOperationException("Device [PrivateKey] is required for GetStatus or SetParameter operations.");
+
         }
 
-        private string EncryptData(object request)
+        private void ValidatePrivateKey(string privateKey)
+        {
+            if(string.IsNullOrEmpty(privateKey))
+            {
+                throw new InvalidOperationException("Device [PrivateKey] is required for GetStatus or SetParameter operations.");
+            }   
+        }
+
+        protected string EncryptUsingGenericKey<T>(T request)
         {
             var packJson = JsonConvert.SerializeObject(request);
-            return _operation == Operation.Scan || _operation == Operation.Bind
-                ? Crypto.EncryptGenericData(packJson) ?? throw new InvalidOperationException("Could not encrypt generic data.")
-                : Crypto.EncryptData(packJson, _airConditionerModel.PrivateKey) ?? throw new InvalidOperationException("Could not encrypt pack json.");
+            return Crypto.EncryptGenericData(packJson) ?? throw new InvalidOperationException("Could not encrypt generic data.");
+        }
+
+        private string EncryptUsingPrivateKey<T>(T request, string privateKey)
+        {
+            var packJson = JsonConvert.SerializeObject(request);
+            return Crypto.EncryptData(packJson, privateKey) ?? throw new InvalidOperationException("Could not encrypt pack json.");
+        }
+
+        private async Task<List<UdpReceiveResult>> SendBroadcastRequest(Request request, string broadcastAddress)
+        {
+            var bytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(request));
+            var udpHandler = new UdpHandler(_udpClientWrapper);
+            return await udpHandler.SendReceiveBroadcastRequest(bytes, broadcastAddress);
         }
 
         private async Task<List<UdpReceiveResult>> SendUdpRequest(string encryptedData)
@@ -70,11 +85,10 @@ namespace AC.Library.Core.Templates
                     request = Request.Create(_airConditionerModel.Id, encryptedData);
                     break;
             }
-            var bytes = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(request));
-            var udpHandler = new UdpHandler(_udpClientWrapper);
+
 
             return _operation == Operation.Scan
-                ? await udpHandler.SendReceiveBroadcastRequest(bytes, _broadcastAddress)
+                ? 
                 : await udpHandler.SendReceiveRequest(bytes, _airConditionerModel.Address);
         }
 
