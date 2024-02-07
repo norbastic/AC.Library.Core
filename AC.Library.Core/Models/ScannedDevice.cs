@@ -1,10 +1,26 @@
+using AC.Library.Core.Models.Protocol;
+
 namespace AC.Library.Core.Models
 {
-    public class ScannedDevice
+    public class ScannedDevice : DeviceInfoResponsePack
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string Address { get; set; }
-        public string Type { get; set; }
+        // Scanned device has an IpAddress
+        public string IpAddress { get; set; }
+        
+        public ScannedDevice() { }
+        public ScannedDevice(DeviceInfoResponsePack deviceInfo)
+        {
+            BrandCode = deviceInfo.BrandCode;
+            Brand = deviceInfo.Brand;
+            Catalog = deviceInfo.Catalog;
+            ClientId = deviceInfo.ClientId;
+            ModelId = deviceInfo.ModelId;
+            Model = deviceInfo.Model;
+            FriendlyName = deviceInfo.FriendlyName;
+            Series = deviceInfo.Series;
+            Vendor = deviceInfo.Vendor;
+            FirmwareVersion = deviceInfo.FirmwareVersion;
+            LockState = deviceInfo.LockState;
+        }
     }
 }

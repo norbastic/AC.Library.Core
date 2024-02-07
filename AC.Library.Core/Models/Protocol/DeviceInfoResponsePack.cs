@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace AC.Library.Core.Models.Protocol
 {
-    internal class DeviceInfoResponsePack
+    public class DeviceInfoResponsePack
     {
         [JsonProperty("bc")]
         public string BrandCode { get; set; } = string.Empty;

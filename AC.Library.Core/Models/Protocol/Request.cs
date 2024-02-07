@@ -28,14 +28,6 @@ namespace AC.Library.Core.Models.Protocol
                 UID = 0
             };
         }
-
-        public static Request CreateScan()
-        {
-            return new Request
-            {
-                Type = "scan"
-            };
-        }
     }
 }
 
