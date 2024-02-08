@@ -28,24 +28,18 @@ namespace AC.Library.Core.Communication
 
         internal abstract string Encrypt(string serializedPack);
 
-        protected string EncryptWithGenericKey(string serializedPack)
-        {
-            return Crypto.EncryptGenericData(serializedPack) ??
-                   throw new Exception("Could not encrypt data with generic key.");
-        }
-
-        protected string EncryptWithPrivateKey(string serializedPack, string privateKey)
-        {
-            return Crypto.EncryptData(serializedPack, privateKey) ??
-                   throw new Exception("Could not encrypt data with private key.");
-        }
-
         internal abstract byte[] PrepareRequestForSend(object request);
         
         protected async Task<List<UdpReceiveResult>> SendUdpBroadcastRequest(byte[] bytes, string broadcastAddress)
         {
             var udpHandler = new UdpHandler(_udpClientWrapper);
             return await udpHandler.SendReceiveBroadcastRequest(bytes, broadcastAddress);
+        }
+        
+        protected async Task<List<UdpReceiveResult>> SendUdpRequest(byte[] bytes, string ipAddress)
+        {
+            var udpHandler = new UdpHandler(_udpClientWrapper);
+            return await udpHandler.SendReceiveBroadcastRequest(bytes, ipAddress);
         }
 
         internal abstract string Decrypt(string stringToDecrypt);
