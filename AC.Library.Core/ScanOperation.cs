@@ -12,9 +12,9 @@ using Newtonsoft.Json;
 
 namespace AC.Library.Core
 {
-    public class DeviceScanner : BaseCommunication<List<ScannedDevice>>
+    public class ScanOperation : BaseCommunication<List<ScannedDevice>>
     {
-        public DeviceScanner(IUdpClientWrapper udpClientWrapper) : base(udpClientWrapper)
+        public ScanOperation(IUdpClientWrapper udpClientWrapper) : base(udpClientWrapper)
         {
         }
 
