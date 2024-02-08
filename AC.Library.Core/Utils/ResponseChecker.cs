@@ -1,4 +1,4 @@
-using AC.Library.Core.Models.Communication;
+using AC.Library.Core.Models.Protocol;
 
 namespace AC.Library.Core.Utils
 {
