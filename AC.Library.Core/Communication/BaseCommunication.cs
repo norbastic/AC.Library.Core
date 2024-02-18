@@ -48,6 +48,10 @@ namespace AC.Library.Core.Communication
         {
             var responsePackJson = Encoding.ASCII.GetString(udpResponse.Buffer);
             var responsePack = JsonConvert.DeserializeObject<ResponsePackInfo>(responsePackJson);
+            if (!ResponseChecker.IsReponsePackInfoValid(responsePack))
+            {
+                return null;
+            }
             return Decrypt(responsePack.Pack);
         }
 
