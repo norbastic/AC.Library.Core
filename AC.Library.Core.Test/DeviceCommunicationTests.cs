@@ -58,19 +58,10 @@ public class DeviceCommunicationTests
             IpAddress = "192.168.1.148",
             PrivateKey = "4Fg7Ij0Lm3Op6Rs9"
         };
-        var parameterList = new List<IParameter>()
-        {
-            PowerParam.Power,
-            TemperatureParam.Temperature
-        };
         
-        /*var setParameterOperation = new SetDeviceParameterOperation<IParameter, IParameterValue>(
-            new UdpClientWrapper(),
-            Operation.GetStatus,
-            acDevice,
-            TemperatureParam.Temperature,
-            new TempParameterValue(TemperatureValues._20)  );*/
-        //var status = await setParameterOperation.ExecuteOperationAsync();
-        //Assert.NotNull(status);
+        var setParameterOperation = new SetParameterOperation(new UdpClientWrapper(), acDevice.ClientId, acDevice.PrivateKey);
+        var result = await setParameterOperation.SetParameter(TemperatureParam.Temperature, new TempParameterValue(TemperatureValues._20), acDevice.IpAddress);
+
+        Assert.Equal(TemperatureParam.Temperature.Value, result);
     }
 }
