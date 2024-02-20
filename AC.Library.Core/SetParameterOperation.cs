@@ -55,8 +55,10 @@ namespace AC.Library.Core
             return string.Join(";", commandResponse.Columns);
         }
         
-        private async Task<string> SetParameter(string parameter, int value, string ipAddress)
+        private async Task<string> ExecuteOperation(IParameter parameter, IParameterValue value, string ipAddress)
         {
+            _parameter = parameter.Value;
+            _value = value.Value;
             var statusRequestPack = CreateRequestPack();
             var packJson = SerializeRequestPack(statusRequestPack);
             var encryptedData = Encrypt(packJson);
@@ -65,50 +67,32 @@ namespace AC.Library.Core
             return ProcessUdpResponses(udpResponses);
         }
         
-        public async Task<string> SetParameter(PowerParam parameter, PowerParameterValue value, string ipAddress)
-        {
-            _parameter = parameter.Value;
-            _value = value.Value;
-            
-            return await SetParameter(parameter.Value, value.Value, ipAddress);
-        }
-        
-        public async Task<string> SetParameter(TemperatureParam parameter, TempParameterValue value, string ipAddress)
-        {
-            _parameter = parameter.Value;
-            _value = value.Value;
+        public async Task<string> SetParameter(PowerParam parameter, PowerParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
 
-            return await SetParameter(parameter.Value, value.Value, ipAddress);
-        }
+        public async Task<string> SetParameter(ModeParam parameter, ModeParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
+
+        public async Task<string> SetParameter(TemperatureParam parameter, TempParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
+
+        public async Task<string> SetParameter(FanSpeedParam parameter, FanSpeedParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
+
+        public async Task<string> SetParameter(AirModeParam parameter, AirParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
+
+        public async Task<string> SetParameter(XfanModeParam parameter, SwingHorizontalParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
+
+        public async Task<string> SetParameter(HealthModeParam parameter, HealthParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
+
+        public async Task<string> SetParameter(SleepModeParam parameter, SleepParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
+
+        public async Task<string> SetParameter(LightParam parameter, LightParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
+
+        public async Task<string> SetParameter(VerticalSwingParam parameter, SwingVerticalParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
+
+        public async Task<string> SetParameter(QuietModeParam parameter, QuietParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
+
+        public async Task<string> SetParameter(TurboModeParam parameter, TurboParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
+
+        public async Task<string> SetParameter(EnergySavingModeParam parameter, PowerSaveParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
+
+        public async Task<string> SetParameter(TemperatureParam parameter, TempUnitParameterValue value, string ipAddress) => await ExecuteOperation(parameter, value, ipAddress);
     }
-    
-    /*
-    public class SetDeviceParameterOperation<TParam, TValue> : DeviceCommunication
-        where TParam : IParameter
-        where TValue : IParameterValue
-    {
-        private TParam _param;
-        private TValue _value;
-        
-        public SetDeviceParameterOperation(IUdpClientWrapper udpClientWrapper, Operation operation, AirConditionerModel airConditionerModel, TParam param, TValue value, string broadcastAddress = null) : base(udpClientWrapper, operation, airConditionerModel, broadcastAddress)
-        {
-            _param = param;
-            _value = value;
-        }
-
-        protected override object CreateRequest()
-        {
-            return CommandRequestPack.Create(_airConditionerModel.Id, _param.Value, _value.Value);
-        }
-
-        protected override object ProcessResponseJson(string json)
-        {
-            var setParameterResponse = JsonConvert.DeserializeObject<CommandResponsePack>(json);
-            if (setParameterResponse == null) {
-                return null;
-            }
-
-            return _param.Value.Equals(setParameterResponse.Columns.First()) ? setParameterResponse.Columns.First() : null;
-        }
-    }*/
 }
