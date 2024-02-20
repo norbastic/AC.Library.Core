@@ -32,9 +32,9 @@ namespace AC.Library.Core
 
         internal override string Encrypt(string serializedPack) => Crypto.EncryptData(serializedPack, _privateKey);
 
-        internal override byte[] PrepareRequestForSend(object request)
+        internal override byte[] PrepareRequestForSend(string encryptedData)
         {
-            var requestToSend = Request.Create(_macAddress, (string) request);
+            var requestToSend = Request.Create(_macAddress, encryptedData);
             return Encoding.ASCII.GetBytes(SerializeRequestPack(requestToSend));
         }
 

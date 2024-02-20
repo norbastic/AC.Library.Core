@@ -34,10 +34,10 @@ namespace AC.Library.Core
             return Request.Create(macAddress, encryptedPack, 1);
         }
 
-        internal override byte[] PrepareRequestForSend(object request)
+        internal override byte[] PrepareRequestForSend(string encryptedData)
         {
-            var serializedRequest = JsonConvert.SerializeObject(request);
-            return Encoding.ASCII.GetBytes(serializedRequest);
+            var requestToSend = CreateRequest(_macAddress, encryptedData);
+            return Encoding.ASCII.GetBytes(SerializeRequestPack(requestToSend));
         }
 
         internal override string Decrypt(string stringToDecrypt)
@@ -59,12 +59,11 @@ namespace AC.Library.Core
         {
             _macAddress = macAddress;
             
-            var bindRequestPack = CreateRequestPack();
-            var serializedRequestPack = SerializeRequestPack(bindRequestPack);
-            var encryptedPack = Encrypt(serializedRequestPack);
-            var request = CreateRequest(_macAddress, encryptedPack);
-            var toSend = PrepareRequestForSend(request);
-            var udpResponses = await SendUdpRequest(toSend, ipAddress);
+            var requestPack = CreateRequestPack();
+            var packJson = SerializeRequestPack(requestPack);
+            var encryptedData = Encrypt(packJson);
+            var bytesToSend = PrepareRequestForSend(encryptedData);
+            var udpResponses = await SendUdpBroadcastRequest(bytesToSend, ipAddress);
             return ProcessUdpResponses(udpResponses);
         }
     }

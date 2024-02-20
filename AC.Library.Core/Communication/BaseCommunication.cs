@@ -28,7 +28,7 @@ namespace AC.Library.Core.Communication
 
         internal abstract string Encrypt(string serializedPack);
 
-        internal abstract byte[] PrepareRequestForSend(object request);
+        internal abstract byte[] PrepareRequestForSend(string encryptedData);
         
         protected async Task<List<UdpReceiveResult>> SendUdpBroadcastRequest(byte[] bytes, string broadcastAddress)
         {
@@ -59,12 +59,22 @@ namespace AC.Library.Core.Communication
 
         protected async Task<T> ExecuteOperation(string ipAddress)
         {
-            var statusRequestPack = CreateRequestPack();
-            var packJson = SerializeRequestPack(statusRequestPack);
+            var requestPack = CreateRequestPack();
+            var packJson = SerializeRequestPack(requestPack);
             var encryptedData = Encrypt(packJson);
             var bytesToSend = PrepareRequestForSend(encryptedData);
             var udpResponses = await SendUdpBroadcastRequest(bytesToSend, ipAddress);
             return ProcessUdpResponses(udpResponses);
+
+            /*
+             *             var bindRequestPack = CreateRequestPack();
+            var serializedRequestPack = SerializeRequestPack(bindRequestPack);
+            var encryptedPack = Encrypt(serializedRequestPack);
+            var request = CreateRequest(_macAddress, encryptedPack);
+            var toSend = PrepareRequestForSend(request);
+            var udpResponses = await SendUdpRequest(toSend, ipAddress);
+            return ProcessUdpResponses(udpResponses);
+             */
         }
     }
 }

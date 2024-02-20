@@ -28,9 +28,9 @@ namespace AC.Library.Core
             return serializedPack;
         }
 
-        internal override byte[] PrepareRequestForSend(object request)
+        internal override byte[] PrepareRequestForSend(string encryptedData)
         {
-            return Encoding.ASCII.GetBytes((string) request);
+            return Encoding.ASCII.GetBytes(encryptedData);
         }
 
         internal override string Decrypt(string stringToDecrypt)
@@ -61,12 +61,7 @@ namespace AC.Library.Core
         
         public async Task<List<ScannedDevice>> Scan(string broadcastAddress)
         {
-            var scanRequestPack = CreateRequestPack();
-            var packJson = SerializeRequestPack(scanRequestPack);
-            var encryptedData = Encrypt(packJson);
-            var bytesToSend = PrepareRequestForSend(encryptedData);
-            var udpResponses = await SendUdpBroadcastRequest(bytesToSend, broadcastAddress);
-            return ProcessUdpResponses(udpResponses);
+            return await ExecuteOperation(broadcastAddress);
         }
     }
 }
