@@ -23,11 +23,6 @@ namespace AC.Library.Core
         {
             return new BindRequestPack { MAC = _macAddress };
         }
-
-        internal override string Encrypt(string serializedPack)
-        {
-            return Crypto.EncryptGenericData(serializedPack);
-        }
         
         private Request CreateRequest(string macAddress, string encryptedPack)
         {
@@ -40,11 +35,6 @@ namespace AC.Library.Core
             return Encoding.ASCII.GetBytes(SerializeRequestPack(requestToSend));
         }
 
-        internal override string Decrypt(string stringToDecrypt)
-        {
-            return Crypto.DecryptGenericData(stringToDecrypt);
-        }
-
         internal override string ProcessUdpResponses(List<UdpReceiveResult> udpResponses)
         {
             var decryptedData = GetResponsePackFromUdpResponse(udpResponses.FirstOrDefault());
@@ -55,13 +45,7 @@ namespace AC.Library.Core
         public async Task<string> Bind(string macAddress, string ipAddress)
         {
             _macAddress = macAddress;
-            
-            var requestPack = CreateRequestPack();
-            var packJson = SerializeRequestPack(requestPack);
-            var encryptedData = Encrypt(packJson);
-            var bytesToSend = PrepareRequestForSend(encryptedData);
-            var udpResponses = await SendUdpBroadcastRequest(bytesToSend, ipAddress);
-            return ProcessUdpResponses(udpResponses);
+            return await ExecuteOperation(ipAddress);
         }
     }
 }

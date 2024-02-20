@@ -7,7 +7,6 @@ using AC.Library.Core.Communication;
 using AC.Library.Core.Interfaces;
 using AC.Library.Core.Models;
 using AC.Library.Core.Models.Protocol;
-using AC.Library.Core.Utils;
 using Newtonsoft.Json;
 
 namespace AC.Library.Core
@@ -31,11 +30,6 @@ namespace AC.Library.Core
         internal override byte[] PrepareRequestForSend(string encryptedData)
         {
             return Encoding.ASCII.GetBytes(encryptedData);
-        }
-
-        internal override string Decrypt(string stringToDecrypt)
-        {
-            return Crypto.DecryptGenericData(stringToDecrypt);
         }
 
         internal override List<ScannedDevice> ProcessUdpResponses(List<UdpReceiveResult> udpResponses)
