@@ -34,11 +34,15 @@ namespace AC.Library.Core
             };
         }
 
+        internal override string Encrypt(string serializedPack) => Crypto.EncryptData(serializedPack, _privateKey);
+
         internal override byte[] PrepareRequestForSend(object request)
         {
             var requestToSend = Request.Create(_macAddress, (string) request);
             return Encoding.ASCII.GetBytes(SerializeRequestPack(requestToSend));
         }
+
+        internal override string Decrypt(string stringToDecrypt) => Crypto.DecryptData(stringToDecrypt, _privateKey);
 
         internal override Dictionary<string, int> ProcessUdpResponses(List<UdpReceiveResult> udpResponses)
         {
@@ -53,13 +57,7 @@ namespace AC.Library.Core
         public async Task<Dictionary<string, int>> GetDeviceStatus(List<IParameter> parameterList, string ipAddress)
         {
             _columns = parameterList;
-            var statusRequestPack = CreateRequestPack();
-            var packJson = SerializeRequestPack(statusRequestPack);
-            var encryptedData = Encrypt(packJson, _privateKey);
-            var bytesToSend = PrepareRequestForSend(encryptedData);
-            var udpResponses = await SendUdpBroadcastRequest(bytesToSend, ipAddress);
-            return ProcessUdpResponses(udpResponses);
-        }
-        
+            return await ExecuteOperation(ipAddress);
+        }        
     }
 }

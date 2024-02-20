@@ -26,10 +26,7 @@ namespace AC.Library.Core.Communication
             return JsonConvert.SerializeObject(requestPack);
         }
 
-        internal virtual string Encrypt(string serializedPack, string privateKey = null)
-        {
-            return Crypto.EncryptData(serializedPack, privateKey);
-        }
+        internal abstract string Encrypt(string serializedPack);
 
         internal abstract byte[] PrepareRequestForSend(object request);
         
@@ -45,7 +42,7 @@ namespace AC.Library.Core.Communication
             return await udpHandler.SendReceiveBroadcastRequest(bytes, ipAddress);
         }
 
-        internal virtual string Decrypt(string stringToDecrypt, string privateKey = null) => Crypto.DecryptData(stringToDecrypt, privateKey);
+        internal abstract string Decrypt(string stringToDecrypt);
 
         protected string GetResponsePackFromUdpResponse(UdpReceiveResult udpResponse, string privateKey = null)
         {
@@ -55,9 +52,19 @@ namespace AC.Library.Core.Communication
             {
                 return null;
             }
-            return Decrypt(responsePack.Pack, privateKey);
+            return Decrypt(responsePack.Pack);
         }
 
         internal abstract T ProcessUdpResponses(List<UdpReceiveResult> udpResponses);
+
+        protected async Task<T> ExecuteOperation(string ipAddress)
+        {
+            var statusRequestPack = CreateRequestPack();
+            var packJson = SerializeRequestPack(statusRequestPack);
+            var encryptedData = Encrypt(packJson);
+            var bytesToSend = PrepareRequestForSend(encryptedData);
+            var udpResponses = await SendUdpBroadcastRequest(bytesToSend, ipAddress);
+            return ProcessUdpResponses(udpResponses);
+        }
     }
 }
