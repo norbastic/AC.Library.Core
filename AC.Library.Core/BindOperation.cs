@@ -47,10 +47,7 @@ namespace AC.Library.Core
 
         internal override string ProcessUdpResponses(List<UdpReceiveResult> udpResponses)
         {
-            var responseJson = Encoding.ASCII.GetString(udpResponses.FirstOrDefault().Buffer);
-            var responsePackInfo = JsonConvert.DeserializeObject<ResponsePackInfo>(responseJson);
-            if (!ResponseChecker.IsReponsePackInfoValid(responsePackInfo)) return null;
-            var decryptedData = Decrypt(responsePackInfo?.Pack);
+            var decryptedData = GetResponsePackFromUdpResponse(udpResponses.FirstOrDefault());
             var bindResponse = JsonConvert.DeserializeObject<BindResponsePack>(decryptedData);
             return bindResponse?.Key;
         }
