@@ -30,26 +30,16 @@ namespace AC.Library.Core
             return CommandRequestPack.Create(_macAddress, _parameter, _value);
         }
 
-        internal override string Encrypt(string serializedPack)
-        {
-            return Crypto.EncryptData(serializedPack, _privateKey);
-        }
-
         internal override byte[] PrepareRequestForSend(object request)
         {
             var requestToSend = Request.Create(_macAddress, (string) request);
             return Encoding.ASCII.GetBytes(SerializeRequestPack(requestToSend));
         }
 
-        internal override string Decrypt(string stringToDecrypt)
-        {
-            return Crypto.DecryptData(stringToDecrypt, _privateKey);
-        }
-
         internal override string ProcessUdpResponses(List<UdpReceiveResult> udpResponses)
         {
             var response = udpResponses.FirstOrDefault();
-            var decryptedPack = GetResponsePackFromUdpResponse(response);
+            var decryptedPack = GetResponsePackFromUdpResponse(response, _privateKey);
             
             var commandResponse = JsonConvert.DeserializeObject<CommandResponsePack>(decryptedPack);
             return string.Join(";", commandResponse.Columns);
@@ -59,9 +49,10 @@ namespace AC.Library.Core
         {
             _parameter = parameter.Value;
             _value = value.Value;
+
             var statusRequestPack = CreateRequestPack();
             var packJson = SerializeRequestPack(statusRequestPack);
-            var encryptedData = Encrypt(packJson);
+            var encryptedData = Encrypt(packJson, _privateKey);
             var bytesToSend = PrepareRequestForSend(encryptedData);
             var udpResponses = await SendUdpBroadcastRequest(bytesToSend, ipAddress);
             return ProcessUdpResponses(udpResponses);
