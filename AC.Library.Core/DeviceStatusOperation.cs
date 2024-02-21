@@ -24,7 +24,7 @@ namespace AC.Library.Core
             _privateKey = privateKey;
         }
 
-        internal override object CreateRequestPack()
+        protected override object CreateRequestPack()
         {
             return new StatusRequestPack
             {
@@ -34,17 +34,17 @@ namespace AC.Library.Core
             };
         }
 
-        internal override string Encrypt(string serializedPack) => Crypto.EncryptData(serializedPack, _privateKey);
+        protected override string Encrypt(string serializedPack) => Crypto.EncryptData(serializedPack, _privateKey);
 
-        internal override byte[] PrepareRequestForSend(string encryptedData)
+        protected override byte[] PrepareRequestForSend(string encryptedData)
         {
             var requestToSend = Request.Create(_macAddress, encryptedData);
             return Encoding.ASCII.GetBytes(SerializeRequestPack(requestToSend));
         }
 
-        internal override string Decrypt(string stringToDecrypt) => Crypto.DecryptData(stringToDecrypt, _privateKey);
+        protected override string Decrypt(string stringToDecrypt) => Crypto.DecryptData(stringToDecrypt, _privateKey);
 
-        internal override Dictionary<string, int> ProcessUdpResponses(List<UdpReceiveResult> udpResponses)
+        protected override Dictionary<string, int> ProcessUdpResponses(List<UdpReceiveResult> udpResponses)
         {
             var response = udpResponses.FirstOrDefault();
             var decryptedPack = GetResponsePackFromUdpResponse(response, _privateKey);            

@@ -17,22 +17,27 @@ namespace AC.Library.Core
         {
         }
 
-        internal override object CreateRequestPack()
+        protected override object CreateRequestPack()
         {
             return new ScanRequestPack();
         }
 
-        internal override string Encrypt(string serializedPack)
+        protected override string Encrypt(string serializedPack)
         {
             return serializedPack;
         }
 
-        internal override byte[] PrepareRequestForSend(string encryptedData)
+        protected override byte[] PrepareRequestForSend(string encryptedData)
         {
             return Encoding.ASCII.GetBytes(encryptedData);
         }
 
-        internal override List<ScannedDevice> ProcessUdpResponses(List<UdpReceiveResult> udpResponses)
+        protected override Task<List<UdpReceiveResult>> SendUdpRequest(byte[] bytes, string ipAddress)
+        {
+            return SendUdpBroadcastRequest(bytes, ipAddress);
+        }
+
+        protected override List<ScannedDevice> ProcessUdpResponses(List<UdpReceiveResult> udpResponses)
         {
             var deviceDiscoveryResponses = udpResponses.Select(udpResponse =>
             {
@@ -52,7 +57,7 @@ namespace AC.Library.Core
                 }
                 ).ToList();
         }
-        
+
         public async Task<List<ScannedDevice>> Scan(string broadcastAddress)
         {
             return await ExecuteOperation(broadcastAddress);

@@ -19,7 +19,7 @@ namespace AC.Library.Core
         {
         }
 
-        internal override object CreateRequestPack()
+        protected override object CreateRequestPack()
         {
             return new BindRequestPack { MAC = _macAddress };
         }
@@ -29,13 +29,13 @@ namespace AC.Library.Core
             return Request.Create(macAddress, encryptedPack, 1);
         }
 
-        internal override byte[] PrepareRequestForSend(string encryptedData)
+        protected override byte[] PrepareRequestForSend(string encryptedData)
         {
             var requestToSend = CreateRequest(_macAddress, encryptedData);
             return Encoding.ASCII.GetBytes(SerializeRequestPack(requestToSend));
         }
 
-        internal override string ProcessUdpResponses(List<UdpReceiveResult> udpResponses)
+        protected override string ProcessUdpResponses(List<UdpReceiveResult> udpResponses)
         {
             var decryptedData = GetResponsePackFromUdpResponse(udpResponses.FirstOrDefault());
             var bindResponse = JsonConvert.DeserializeObject<BindResponsePack>(decryptedData);
