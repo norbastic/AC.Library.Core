@@ -8,41 +8,41 @@ All credits go to tomikaa87 who made an amazing work. Check out his work: [gree-
 ## How to use
 ### Scanning local network
 ```CS
-        var deviceScanner = new ScanOperation(new UdpClientWrapper());
-        var devices = await deviceScanner.Scan("192.168.1.255");
+    var deviceScanner = new ScanOperation(new UdpClientWrapper());
+    // The IP address must be the broadcast address of  local network
+    var devices = await deviceScanner.Scan("192.168.1.255");
 ```
 
 ### Binding device
 ```cs
-    var device = scanResult.FirstOrDefault();
-    var acDevice = new AirConditionerModel
-    {
-        Id = device.Id
-        Address = device.Address
-    };
-    var bindOperation = new BindOperation(new UdpClientWrapper(), Operation.Bind, acDevice);
-    var privateKey = (string) await bindOperation.ExecuteOperationAsync();
+    // From the scanning let's take the first device
+    var device = devices.FirstOrDefault();
+    var bindOperation = new BindOperation(new UdpClientWrapper());
+    var privateKey = await bindOperation.Bind(device.ClientId, device.IpAddress);
+    // We can now add the private key to the device object
+    device.PrivateKey = privateKey;
 ```
-PrivateKey should be stored.
+PrivateKey and the object should be stored, because the private key is used for the device other device operations.
 
 ### Set a parameter
 ```cs
-    var device = scanResult.FirstOrDefault();
-    var acDevice = new AirConditionerModel
-    {
-        Id = device.Id
-        Address = device.Address
-        PrivateKey = privateKey
-    };
-    
-    var setParameterOperation = new SetDeviceParameterOperation<IParameter, IParameterValue>(
-        new UdpClientWrapper(),
-        Operation.SetParameter,
-        acDevice,
+    // Let's use the previously bound device
+    var setParameterOperation = new SetParameterOperation(new UdpClientWrapper(), device.ClientId, device.PrivateKey);
+
+    // Turn on the device
+    await setParameterOperation.SetParameter(
+        PowerParam.Power,
+        new PowerParameterValue(PowerValues.On),
+        acDevice.IpAddress
+    );
+
+    // Let's set the temperature to 20°C
+    var result = await setParameterOperation.SetParameter(
         TemperatureParam.Temperature,
-        new TempParameterValue(TemperatureValues._20));
+        new TempParameterValue(TemperatureValues._20),
+        device.IpAddress
+    );
     
-    var changedParam = (string) await setParameterOperation.ExecuteOperationAsync();
 ```
 
 ### Query status
