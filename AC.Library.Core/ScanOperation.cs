@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace AC.Library.Core
 {
-    public class ScanOperation : BaseCommunication<List<ScannedDevice>>
+    public class ScanOperation : BaseCommunication<List<AirConditionerDevice>>
     {
         public ScanOperation(IUdpClientWrapper udpClientWrapper) : base(udpClientWrapper)
         {
@@ -37,7 +37,7 @@ namespace AC.Library.Core
             return SendUdpBroadcastRequest(bytes, ipAddress);
         }
 
-        protected override List<ScannedDevice> ProcessUdpResponses(List<UdpReceiveResult> udpResponses)
+        protected override List<AirConditionerDevice> ProcessUdpResponses(List<UdpReceiveResult> udpResponses)
         {
             var deviceDiscoveryResponses = udpResponses.Select(udpResponse =>
             {
@@ -53,12 +53,12 @@ namespace AC.Library.Core
                 {
                     var deviceInfoResponsePack =
                         JsonConvert.DeserializeObject<DeviceInfoResponsePack>(deviceDiscoveryResponse.Json);
-                    return new ScannedDevice(deviceInfoResponsePack) { IpAddress = deviceDiscoveryResponse.Address };
+                    return new AirConditionerDevice(deviceInfoResponsePack) { IpAddress = deviceDiscoveryResponse.Address };
                 }
                 ).ToList();
         }
 
-        public async Task<List<ScannedDevice>> Scan(string broadcastAddress)
+        public async Task<List<AirConditionerDevice>> Scan(string broadcastAddress)
         {
             return await ExecuteOperation(broadcastAddress);
         }

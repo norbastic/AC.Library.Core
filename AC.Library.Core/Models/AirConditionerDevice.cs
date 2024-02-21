@@ -2,13 +2,13 @@ using AC.Library.Core.Models.Protocol;
 
 namespace AC.Library.Core.Models
 {
-    public class ScannedDevice : DeviceInfoResponsePack
+    public class AirConditionerDevice : DeviceInfoResponsePack
     {
-        // Scanned device has an IpAddress
         public string IpAddress { get; set; }
-        
-        public ScannedDevice() { }
-        public ScannedDevice(DeviceInfoResponsePack deviceInfo)
+        public string PrivateKey { get; set; }
+
+        public AirConditionerDevice() { }
+        public AirConditionerDevice(DeviceInfoResponsePack deviceInfo)
         {
             BrandCode = deviceInfo.BrandCode;
             Brand = deviceInfo.Brand;
