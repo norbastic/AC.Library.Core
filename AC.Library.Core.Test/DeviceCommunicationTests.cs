@@ -19,7 +19,7 @@ public class DeviceCommunicationTests
     [Fact]
     public async void BindTest()
     {
-        var acDevice = new AirConditionerModel
+        var acDevice = new AirConditionerDevice()
         {
             ClientId = "f4911ed36c75",
             IpAddress = "192.168.1.148"
@@ -32,7 +32,7 @@ public class DeviceCommunicationTests
     [Fact]
     public async void GetStatusTest()
     {
-        var acDevice = new AirConditionerModel
+        var acDevice = new AirConditionerDevice()
         {
             ClientId = "f4911ed36c75",
             IpAddress = "192.168.1.148",
@@ -52,7 +52,7 @@ public class DeviceCommunicationTests
     [Fact]
     public async void SetParameterTest()
     {
-        var acDevice = new AirConditionerModel
+        var acDevice = new AirConditionerDevice()
         {
             ClientId = "f4911ed36c75",
             IpAddress = "192.168.1.148",

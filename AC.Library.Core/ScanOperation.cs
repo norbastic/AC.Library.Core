@@ -44,7 +44,7 @@ namespace AC.Library.Core
                 var responseJson = GetResponsePackFromUdpResponse(udpResponse);
                 return new DeviceDiscoveryResponse()
                 {
-                    Address = udpResponse.RemoteEndPoint.ToString(),
+                    Address = udpResponse.RemoteEndPoint.Address.ToString(),
                     Json = responseJson
                 };
             }).ToList();

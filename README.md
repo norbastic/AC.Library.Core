@@ -8,8 +8,8 @@ All credits go to tomikaa87 who made an amazing work. Check out his work: [gree-
 ## How to use
 ### Scanning local network
 ```CS
-    var scanOperation = new ScanOperation(new UdpClientWrapper(), Operation.Scan, "192.168.1.255");
-    var scanResult = (List<ScannedDevice>) await scanOperation.ExecuteOperationAsync();
+        var deviceScanner = new ScanOperation(new UdpClientWrapper());
+        var devices = await deviceScanner.Scan("192.168.1.255");
 ```
 
 ### Binding device
