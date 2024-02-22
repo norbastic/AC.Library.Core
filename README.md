@@ -7,6 +7,10 @@ All credits go to tomikaa87 who made an amazing work. Check out his work: [gree-
 
 ## How to use
 ### Scanning local network
+
+Local discovery sends a special UDP package to the broadcast address and the available devices on the network reply with device related information.
+Eg.: brand, mac address, name, etc.
+
 ```CS
     var deviceScanner = new ScanOperation(new UdpClientWrapper());
     // The IP address must be the broadcast address of  local network
@@ -14,6 +18,10 @@ All credits go to tomikaa87 who made an amazing work. Check out his work: [gree-
 ```
 
 ### Binding device
+
+When we want to communicate with an AC, first we have to bind the device to the actual computer.
+After a successful bind, the device will return with a private key. This private key must be used for the communication, so it's a good idea to store in a secure way.
+
 ```cs
     // From the scanning let's take the first device
     var device = devices.FirstOrDefault();
@@ -22,13 +30,25 @@ All credits go to tomikaa87 who made an amazing work. Check out his work: [gree-
     // We can now add the private key to the device object
     device.PrivateKey = privateKey;
 ```
-PrivateKey and the object should be stored, because the private key is used for the device other device operations.
 
 ### Set a parameter
+
+Setting a parameter or more can be done the following way:
+
+- Creating an instance of **SetParameterOperation** :
+
 ```cs
     // Let's use the previously bound device
-    var setParameterOperation = new SetParameterOperation(new UdpClientWrapper(), device.ClientId, device.PrivateKey);
+    var setParameterOperation = new SetParameterOperation(
+        new UdpClientWrapper(),
+        device.ClientId,
+        device.PrivateKey
+    );
+```
 
+- Then call the SetParameter with the correct parameter and value:
+
+```cs
     // Turn on the device
     await setParameterOperation.SetParameter(
         PowerParam.Power,
@@ -42,25 +62,31 @@ PrivateKey and the object should be stored, because the private key is used for 
         new TempParameterValue(TemperatureValues._20),
         device.IpAddress
     );
-    
 ```
 
 ### Query status
+
+It is also possible to query the actual value of a parameter or parameters.
+
+- First create an instance of **DeviceStatusOperation** with the correct parameters:
+
 ```cs
-        var device = scanResult.FirstOrDefault();
-        var acDevice = new AirConditionerModel
-        {
-            Id = device.Id
-            Address = device.Address
-            PrivateKey = privateKey
-        };
-        var parameterList = new List<IParameter>()
-        {
-            PowerParam.Power,
-            TemperatureParam.Temperature
-        };
-        
-        var getStatusOperation = new GetDeviceStatusOperation<IParameter>(new UdpClientWrapper(), Operation.GetStatus, acDevice, parameterList);
-        var status = (StatusResponsePack) await getStatusOperation.ExecuteOperationAsync();
+    var statusOperation = new DeviceStatusOperation(
+        new UdpClientWrapper(),
+        device.ClientId,
+        device.PrivateKey
+    );
+```
+
+- Create a list of parameters and call the **GetDeviceStatus** method:
+
+```cs
+    var parameterList = new List<IParameter>()
+    {
+        PowerParam.Power,
+        TemperatureParam.Temperature
+    };
+
+   var status = await statusOperation.GetDeviceStatus(parameterList, device.IpAddress);
 
 ```
