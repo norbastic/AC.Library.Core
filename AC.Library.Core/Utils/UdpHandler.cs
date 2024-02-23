@@ -51,28 +51,21 @@ namespace AC.Library.Core.Utils
         
         public async Task<List<UdpReceiveResult>> SendReceiveBroadcastRequest(byte[] bytes, string ipAddress, int timeOut = 2000)
         {
-            using (var udp = _udpClientWrapper)
-            {
-                udp.EnableBroadcast = true;
-                await udp.SendAsync(bytes, bytes.Length, ipAddress, 7000);
+            _udpClientWrapper.EnableBroadcast = true;
+            await _udpClientWrapper.SendAsync(bytes, bytes.Length, ipAddress, 7000);
             
-                return await WaitForUdpResponse(udp, ipAddress, timeOut);
-            }
+            return await WaitForUdpResponse(_udpClientWrapper, ipAddress, timeOut);
         }
         
         public async Task<List<UdpReceiveResult>> SendReceiveRequest(byte[] bytes, string ipAddress, int timeOut = 2000)
         {
-            _udpClientWrapper.EnableBroadcast = true;
-            using (var udp = _udpClientWrapper)
+            var sent = await _udpClientWrapper.SendAsync(bytes, bytes.Length, ipAddress, 7000);
+            if (sent != bytes.Length)
             {
-                var sent = await udp.SendAsync(bytes, bytes.Length, ipAddress, 7000);
-                if (sent != bytes.Length)
-                {
-                    throw new Exception("UDP request could not be sent.");
-                }
-            
-                return await WaitForUdpResponse(udp, ipAddress, timeOut);
+                throw new Exception("UDP request could not be sent.");
             }
+            
+            return await WaitForUdpResponse(_udpClientWrapper, ipAddress, timeOut);
         }
     }
 }
