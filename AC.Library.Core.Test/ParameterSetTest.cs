@@ -35,6 +35,4 @@ public class ParameterSetTest
 
         Assert.Equal(TemperatureParam.Temperature.Value, response);
     }
-    
-
 }

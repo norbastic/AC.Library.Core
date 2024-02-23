@@ -52,7 +52,7 @@ namespace AC.Library.Core.Examples
             }
         }
         
-        public async void SetParameter()
+        public async Task SetParameter()
         {
             using (var udpClient = new UdpClientWrapper())
             {
