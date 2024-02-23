@@ -22,7 +22,7 @@ public class TestSetup {
         return mock.Object;
     }
 
-    public static IUdpClientWrapper CreateBindUdpMock(byte[] toSend, byte[] toReceive, string ipAddress)
+    public static IUdpClientWrapper CreateBindUdpMock(byte[] toReceive, string ipAddress)
     {
         var mockBindUdp = new Mock<IUdpClientWrapper>();
         mockBindUdp.SetupSequence(x => x.Available)
@@ -30,8 +30,8 @@ public class TestSetup {
             .Returns(0);
         mockBindUdp.Setup(x => x.EnableBroadcast)
             .Returns(false);
-        mockBindUdp.Setup(x => x.SendAsync(toSend, toSend.Length, ipAddress, 7000))
-            .ReturnsAsync(toSend.Length);
+        mockBindUdp.Setup(x => x.SendAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(134);
         mockBindUdp.Setup(x => x.ReceiveAsync())
             .ReturnsAsync(new UdpReceiveResult(
                 toReceive,
