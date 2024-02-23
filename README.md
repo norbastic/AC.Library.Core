@@ -12,9 +12,11 @@ Local discovery sends a special UDP package to the broadcast address and the ava
 Eg.: brand, mac address, name, etc.
 
 ```CS
-    var deviceScanner = new ScanOperation(new UdpClientWrapper());
+    using var udpWrapper = new UdpClientWrapper();    
+    var deviceScanner = new ScanOperation(udpWrapper);
     // The IP address must be the broadcast address of  local network
-    var devices = await deviceScanner.Scan("192.168.1.255");
+    var devices = await deviceScanner.Scan("192.168.1.255");    
+
 ```
 
 ### Binding device
@@ -23,12 +25,14 @@ When we want to communicate with an AC, first we have to bind the device to the 
 After a successful bind, the device will return with a private key. This private key must be used for the communication, so it's a good idea to store in a secure way.
 
 ```cs
-    // From the scanning let's take the first device
+    // From the scanning results let's take the first one
     var device = devices.FirstOrDefault();
-    var bindOperation = new BindOperation(new UdpClientWrapper());
+
+    using var udpWrapper = new UdpClientWrapper();
+    var bindOperation = new BindOperation(udpWrapper);
     var privateKey = await bindOperation.Bind(device.ClientId, device.IpAddress);
     // We can now add the private key to the device object
-    device.PrivateKey = privateKey;
+    device.PrivateKey = privateKey;    
 ```
 
 ### Set a parameter
@@ -39,8 +43,9 @@ Setting a parameter or more can be done the following way:
 
 ```cs
     // Let's use the previously bound device
+    using var udpWrapper = new UdpClientWrapper(); 
     var setParameterOperation = new SetParameterOperation(
-        new UdpClientWrapper(),
+        udpWrapper,
         device.ClientId,
         device.PrivateKey
     );
@@ -48,7 +53,7 @@ Setting a parameter or more can be done the following way:
 
 - Then call the SetParameter with the correct parameter and value:
 
-```cs
+```cs    
     // Turn on the device
     await setParameterOperation.SetParameter(
         PowerParam.Power,
@@ -61,7 +66,8 @@ Setting a parameter or more can be done the following way:
         TemperatureParam.Temperature,
         new TempParameterValue(TemperatureValues._20),
         device.IpAddress
-    );
+    ); 
+
 ```
 
 ### Query status
@@ -71,8 +77,9 @@ It is also possible to query the actual value of a parameter or parameters.
 - First create an instance of **DeviceStatusOperation** with the correct parameters:
 
 ```cs
+    using var udpWrapper = new UdpClientWrapper(); 
     var statusOperation = new DeviceStatusOperation(
-        new UdpClientWrapper(),
+        udpWrapper,
         device.ClientId,
         device.PrivateKey
     );
