@@ -2,7 +2,6 @@
 AC.Library.Core is a streamlined library designed for managing Gree Air Conditioner devices. This library has been specifically tested with the Gree G-Tech model. For more information on this model, please visit [Gree Global](https://global.gree.com/contents/169/290.html).
 
 We extend our gratitude to tomikaa87 for his exceptional contributions, from which this project draws inspiration and methodology. To explore his innovative work, which served as a foundational resource for our development, visit [gree-remote](https://github.com/tomikaa87/gree-remote).
-Simple library to manage Gree Air Conditioner devices.
 
 ## Usage Instructions
 ### Local network discovery
