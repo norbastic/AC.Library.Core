@@ -1,28 +1,24 @@
 # AC.Library.Core
+AC.Library.Core is a streamlined library designed for managing Gree Air Conditioner devices. This library has been specifically tested with the Gree G-Tech model. For more information on this model, please visit [Gree Global](https://global.gree.com/contents/169/290.html).
+
+We extend our gratitude to tomikaa87 for his exceptional contributions, from which this project draws inspiration and methodology. To explore his innovative work, which served as a foundational resource for our development, visit [gree-remote](https://github.com/tomikaa87/gree-remote).
 Simple library to manage Gree Air Conditioner devices.
 
-Only tested with Gree G-Tech.(https://global.gree.com/contents/169/290.html)
+## Usage Instructions
+### Local network discovery
 
-All credits go to tomikaa87 who made an amazing work. Check out his work: [gree-remote](https://github.com/tomikaa87/gree-remote).
-
-## How to use
-### Scanning local network
-
-Local discovery sends a special UDP package to the broadcast address and the available devices on the network reply with device related information.
-Eg.: brand, mac address, name, etc.
+This functionality initiates a local network discovery by dispatching a specialized UDP packet to the broadcast address. Devices within the network respond with pertinent information such as brand, MAC address, and device name, among others.
 
 ```CS
     using var udpWrapper = new UdpClientWrapper();    
     var deviceScanner = new ScanOperation(udpWrapper);
     // The IP address must be the broadcast address of  local network
-    var devices = await deviceScanner.Scan("192.168.1.255");    
-
+    var devices = await deviceScanner.Scan("192.168.1.255");
 ```
 
 ### Binding device
 
-When we want to communicate with an AC, first we have to bind the device to the actual computer.
-After a successful bind, the device will return with a private key. This private key must be used for the communication, so it's a good idea to store in a secure way.
+To communicate with an air conditioner (AC), the device must first be bound to the computer. Successful binding yields a private key essential for subsequent communications. It is advisable to store this key securely.
 
 ```cs
     // From the scanning results let's take the first one
@@ -37,9 +33,10 @@ After a successful bind, the device will return with a private key. This private
 
 ### Set a parameter
 
-Setting a parameter or more can be done the following way:
+To modify a device parameter, follow these steps:
 
-- Creating an instance of **SetParameterOperation** :
+Instantiate a **SetParameterOperation**.
+When creating an instance of `UdpClientWrapper`, it is crucial to employ the `using` statement as shown below. This approach ensures that the `udpWrapper` object is properly disposed of once it is no longer in use, thereby managing resources efficiently and preventing potential memory leaks.
 
 ```cs
     // Let's use the previously bound device
@@ -51,7 +48,7 @@ Setting a parameter or more can be done the following way:
     );
 ```
 
-- Then call the SetParameter with the correct parameter and value:
+Execute the **SetParameter** method with the desired parameter and value:
 
 ```cs    
     // Turn on the device
@@ -66,15 +63,14 @@ Setting a parameter or more can be done the following way:
         TemperatureParam.Temperature,
         new TempParameterValue(TemperatureValues._20),
         device.IpAddress
-    ); 
-
+    );
 ```
 
 ### Query status
 
-It is also possible to query the actual value of a parameter or parameters.
+You can also retrieve the current settings of one or more parameters:
 
-- First create an instance of **DeviceStatusOperation** with the correct parameters:
+Begin by creating a **DeviceStatusOperation** instance with the necessary parameters:
 
 ```cs
     using var udpWrapper = new UdpClientWrapper(); 
@@ -85,7 +81,7 @@ It is also possible to query the actual value of a parameter or parameters.
     );
 ```
 
-- Create a list of parameters and call the **GetDeviceStatus** method:
+Formulate a list of parameters and invoke the **GetDeviceStatus** method:
 
 ```cs
     var parameterList = new List<IParameter>()
@@ -95,5 +91,8 @@ It is also possible to query the actual value of a parameter or parameters.
     };
 
    var status = await statusOperation.GetDeviceStatus(parameterList, device.IpAddress);
-
 ```
+This method returns a `Dictionary<string, int>`, where each key-value pair represents a parameter and its corresponding value. The `string` key denotes the name of the queried parameter, and the `int` value signifies the parameter's actual value. This structure allows for efficient access to the status of multiple device parameters in a type-safe manner.
+
+## Examples
+For practical implementation examples and to better understand how to utilize the features of this library, please refer to the example code provided in the repository at `.\AC.Library.Core\Examples`. This directory contains sample application and usage scenarios that demonstrate the library's capabilities in real-world contexts.
