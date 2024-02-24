@@ -10,14 +10,13 @@
         <RepositoryUrl>https://github.com/norbastic/AC.Library.Core</RepositoryUrl>
         <Description>Simple library to manage GREE air conditioner devices</Description>
         <PackageProjectUrl>https://github.com/norbastic/AC.Library.Core</PackageProjectUrl>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageTags>AC, GREE, AirConditioner</PackageTags>
+        <PackageLicenseUrl>https://github.com/norbastic/AC.Library.Core/blob/main/LICENSE</PackageLicenseUrl>
+        <Copyright>Copyright (c) 2024 Norbert Farago</Copyright>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012"/>
-        <None Include="LICENSE" Pack="true" PackagePath="LICENSE"/>
     </ItemGroup>
 </Project>
