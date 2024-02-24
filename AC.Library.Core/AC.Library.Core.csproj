@@ -14,7 +14,7 @@
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright (c) 2024 Norbert Farago</Copyright>
-        <PackageIcon>Resources\AC_Library_Icon.png</PackageIcon>
+        <PackageIcon>AC_Library_Icon.png</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,6 +22,6 @@
         <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012"/>
         <None Include="../README.md" Pack="true" PackagePath="\" />
         <None Include="../LICENSE" Pack="true" PackagePath="\" />
-        <Folder Include="Resources\" />
+        <None Include="Resources\AC_Library_Icon.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>
