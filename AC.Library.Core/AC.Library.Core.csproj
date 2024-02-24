@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
         <PackageId>AC.Library.Core</PackageId>
-        <Version>1.0.1</Version>
+        <Version>1.0.3</Version>
         <Authors>Norbert Farago</Authors>
         <Company>Home Lab</Company>
         <PackageDescription>Simple library to manage GREE air conditioner devices</PackageDescription>
@@ -11,12 +11,17 @@
         <Description>Simple library to manage GREE air conditioner devices</Description>
         <PackageProjectUrl>https://github.com/norbastic/AC.Library.Core</PackageProjectUrl>
         <PackageTags>AC, GREE, AirConditioner</PackageTags>
-        <PackageLicenseUrl>https://github.com/norbastic/AC.Library.Core/blob/main/LICENSE</PackageLicenseUrl>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright (c) 2024 Norbert Farago</Copyright>
+        <PackageIcon>Resources\AC_Library_Icon.png</PackageIcon>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="Xamarin.Forms" Version="5.0.0.2012"/>
+        <None Include="../README.md" Pack="true" PackagePath="\" />
+        <None Include="../LICENSE" Pack="true" PackagePath="\" />
+        <Folder Include="Resources\" />
     </ItemGroup>
 </Project>
